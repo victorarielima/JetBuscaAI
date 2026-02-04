@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BuscaAI</title>
+    <link rel="icon" type="image/png" href="/logo-reduzida-preta.png" />
+    <link rel="apple-touch-icon" href="/logo-reduzida-preta.png" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            },
+            colors: {
+              brand: {
+                50: '#f0fdf4',
+                100: '#dcfce7',
+                200: '#bbf7d0',
+                300: '#86efac',
+                400: '#4ade80',
+                500: '#22c55e',
+                600: '#16a34a',
+                700: '#15803d',
+                800: '#166534',
+                900: '#14532d',
+              }
+            }
+          },
+        },
+      }
+    </script>
+    <style>
+      /* Animations */
+      @keyframes fade-in {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      
+      @keyframes slide-up {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      
+      @keyframes pulse-glow {
+        0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
+        50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.5); }
+      }
+      
+      .animate-fade-in {
+        animation: fade-in 0.6s ease-out forwards;
+      }
+      
+      .animate-slide-up {
+        animation: slide-up 0.5s ease-out forwards;
+      }
+      
+      .animate-pulse-glow {
+        animation: pulse-glow 2s ease-in-out infinite;
+      }
+      
+      /* Custom scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      
+      ::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 4px;
+      }
+      
+      ::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        border-radius: 4px;
+      }
+      
+      ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(135deg, #2563eb, #7c3aed);
+      }
+      
+      /* Prose overrides for better card styling */
+      .prose h3 { margin-top: 1rem; margin-bottom: 0.5rem; }
+      .prose p { margin-bottom: 0.75rem; }
+      .prose ul { margin: 0.5rem 0; }
+      .prose table { margin: 0; }
+      
+      /* Card hover effects */
+      .card-hover {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      
+      .card-hover:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.15);
+      }
+      
+      /* Gradient text */
+      .gradient-text {
+        background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      
+      /* Glass effect */
+      .glass {
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+      }
+      
+      /* Markdown Styles - Legacy support */
+      .markdown-body h1 { font-size: 1.875rem; font-weight: 700; color: #1e3a8a; margin-top: 1.5em; margin-bottom: 0.5em; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+      .markdown-body h2 { font-size: 1.5rem; font-weight: 600; color: #1e40af; margin-top: 1.25em; margin-bottom: 0.5em; display: flex; align-items: center; gap: 0.5rem; }
+      .markdown-body h3 { font-size: 1.25rem; font-weight: 600; color: #374151; margin-top: 1em; margin-bottom: 0.5em; }
+      .markdown-body p { margin-bottom: 1em; line-height: 1.6; color: #4b5563; }
+      .markdown-body ul, .markdown-body ol { margin-bottom: 1em; padding-left: 1.5em; color: #4b5563; }
+      .markdown-body ul { list-style-type: disc; }
+      .markdown-body li { margin-bottom: 0.25em; }
+      .markdown-body table { width: 100%; border-collapse: collapse; margin-bottom: 1.5em; border-radius: 8px; overflow: hidden; font-size: 0.95rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+      .markdown-body th { background-color: #f3f4f6; font-weight: 600; text-align: left; padding: 0.75rem; color: #1f2937; border-bottom: 1px solid #e5e7eb; }
+      .markdown-body td { padding: 0.75rem; border-bottom: 1px solid #e5e7eb; color: #374151; }
+      .markdown-body tr:last-child td { border-bottom: none; }
+      .markdown-body tr:nth-child(even) { background-color: #f9fafb; }
+      .markdown-body blockquote { border-left: 4px solid #3b82f6; padding-left: 1em; margin-left: 0; color: #4b5563; font-style: italic; background-color: #eff6ff; padding: 1rem; border-radius: 0 8px 8px 0; }
+      .markdown-body strong { color: #111827; font-weight: 600; }
+      .markdown-body a { color: #2563eb; text-decoration: underline; }
+      .markdown-body a:hover { color: #1d4ed8; }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react": "https://esm.sh/react@^19.2.4",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "lucide-react": "https://esm.sh/lucide-react@^0.563.0",
+    "react-markdown": "https://esm.sh/react-markdown@^10.1.0",
+    "remark-gfm": "https://esm.sh/remark-gfm@^4.0.1"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-slate-50 text-slate-900 h-full antialiased">
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>

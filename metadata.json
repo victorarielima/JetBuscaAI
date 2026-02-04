@@ -1,0 +1,5 @@
+{
+  "name": "B2B Company Analyst",
+  "description": "An AI-powered research assistant for B2B sales professionals that generates detailed company reports using Gemini.",
+  "requestFramePermissions": []
+}
