@@ -1,11 +1,20 @@
 import React, { useState } from 'react';
-import { SearchFormData, QueryStatus } from '../types';
-import { Search, Building2, MapPin, Briefcase, FileText, Loader2, Sparkles } from './Icons';
+import { SearchFormData, QueryStatus, ReportSection } from '../types';
+import { Search, Building2, MapPin, Briefcase, FileText, Loader2, ShoppingCart, Users, MessageSquare, Star, Rocket, Check } from './Icons';
 
 interface SearchFormProps {
   onSubmit: (data: SearchFormData) => void;
   status: QueryStatus;
 }
+
+const REPORT_SECTIONS: { id: ReportSection; label: string; Icon: React.ComponentType<{ className?: string }> }[] = [
+  { id: 'dados', label: 'Info Cadastrais', Icon: Building2 },
+  { id: 'produtos', label: 'Produtos', Icon: ShoppingCart },
+  { id: 'clientes', label: 'Clientes', Icon: Users },
+  { id: 'canais', label: 'Canais', Icon: MessageSquare },
+  { id: 'reclameaqui', label: 'Reclame Aqui', Icon: Star },
+  { id: 'estrategia', label: 'Estratégia', Icon: Rocket },
+];
 
 const SearchForm: React.FC<SearchFormProps> = ({ onSubmit, status }) => {
   const [formData, setFormData] = useState<SearchFormData>({
@@ -13,7 +22,8 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSubmit, status }) => {
     cnpj: '',
     location: '',
     industry: '',
-    additionalInfo: ''
+    additionalInfo: '',
+    selectedSections: ['dados', 'produtos', 'clientes', 'canais', 'reclameaqui', 'estrategia']
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -35,8 +45,8 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSubmit, status }) => {
         <h2 className="text-white text-lg sm:text-xl font-semibold">
           Nova Pesquisa
         </h2>
-        <p className="text-brand-100 mt-1 sm:mt-2 text-xs sm:text-sm">
-          Informe os dados da empresa para gerar um relatório estratégico completo.
+        <p className="text-brand-100 mt-1 text-xs sm:text-sm">
+          Preencha os dados da empresa para gerar o relatório
         </p>
       </div>
 
@@ -150,9 +160,71 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSubmit, status }) => {
           />
         </div>
 
+        {/* Section Selection */}
+        <div className="space-y-3 pt-2">
+          <div className="flex items-center justify-between">
+            <label className="block text-sm font-medium text-slate-700">
+              Seções do Relatório
+            </label>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                disabled={isLoading}
+                onClick={() => setFormData(prev => ({ ...prev, selectedSections: REPORT_SECTIONS.map(s => s.id) }))}
+                className="text-xs text-brand-600 hover:text-brand-700 font-medium disabled:opacity-50"
+              >
+                Todas
+              </button>
+              <button
+                type="button"
+                disabled={isLoading}
+                onClick={() => setFormData(prev => ({ ...prev, selectedSections: [] }))}
+                className="text-xs text-slate-500 hover:text-slate-700 font-medium disabled:opacity-50"
+              >
+                Limpar
+              </button>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {REPORT_SECTIONS.map((section) => {
+              const isSelected = formData.selectedSections.includes(section.id);
+              const IconComponent = section.Icon;
+              return (
+                <button
+                  key={section.id}
+                  type="button"
+                  disabled={isLoading}
+                  onClick={() => {
+                    setFormData(prev => ({
+                      ...prev,
+                      selectedSections: isSelected
+                        ? prev.selectedSections.filter(s => s !== section.id)
+                        : [...prev.selectedSections, section.id]
+                    }));
+                  }}
+                  className={`
+                    flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium
+                    border-2 transition-all duration-200 disabled:opacity-50
+                    ${isSelected 
+                      ? 'border-brand-500 bg-brand-50 text-brand-700' 
+                      : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+                    }
+                  `}
+                >
+                  <div className={`flex-shrink-0 w-5 h-5 rounded flex items-center justify-center ${isSelected ? 'bg-brand-500 text-white' : 'bg-slate-200 text-slate-400'}`}>
+                    {isSelected ? <Check className="w-3.5 h-3.5" /> : <IconComponent className="w-3.5 h-3.5" />}
+                  </div>
+                  <span>{section.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         <button
           type="submit"
-          disabled={isLoading || !formData.companyName.trim()}
+          disabled={isLoading || !formData.companyName.trim() || formData.selectedSections.length === 0}
           className="w-full flex justify-center items-center gap-2 bg-brand-600 hover:bg-brand-700 disabled:bg-brand-300 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition-all duration-200 transform active:scale-[0.99]"
         >
           {isLoading ? (

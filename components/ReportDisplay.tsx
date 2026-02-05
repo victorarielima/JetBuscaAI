@@ -28,7 +28,6 @@ interface ReportDisplayProps {
 interface Section {
   id: string;
   title: string;
-  emoji: string;
   content: string;
   icon: React.ReactNode;
   gradient: string;
@@ -120,16 +119,19 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ report, error }) => {
   const parseReport = useMemo(() => {
     if (!report) return { companyName: '', sections: [] };
 
+    // Regex para remover todos os emojis unicode
+    const emojiRegex = /[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F000}-\u{1F02F}]|[\u{1F0A0}-\u{1F0FF}]/gu;
+
     const lines = report.split('\n');
     let companyName = '';
     const sections: Section[] = [];
-    let currentSection: { title: string; emoji: string; content: string[] } | null = null;
+    let currentSection: { title: string; content: string[] } | null = null;
 
     for (const line of lines) {
       // Match company name (h1)
       const h1Match = line.match(/^#\s+(.+)$/);
       if (h1Match) {
-        companyName = h1Match[1].replace(/[🏢🎯📋]/g, '').trim();
+        companyName = h1Match[1].replace(emojiRegex, '').trim();
         continue;
       }
 
@@ -137,19 +139,17 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ report, error }) => {
       const h2Match = line.match(/^##\s+(.+)$/);
       if (h2Match) {
         if (currentSection) {
-          const config = getSectionConfig(currentSection.title);
+          const cleanTitle = currentSection.title.replace(emojiRegex, '').trim();
+          const config = getSectionConfig(cleanTitle);
           sections.push({
-            id: currentSection.title.toLowerCase().replace(/\s+/g, '-'),
-            title: currentSection.title.replace(/[📋🎯🛒👥📊📢🚀⚠️🌐]/g, '').trim(),
-            emoji: currentSection.emoji,
+            id: cleanTitle.toLowerCase().replace(/\s+/g, '-'),
+            title: cleanTitle,
             content: currentSection.content.join('\n').trim(),
             ...config
           });
         }
-        const emojiMatch = h2Match[1].match(/^([\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}])/u);
         currentSection = {
           title: h2Match[1],
-          emoji: emojiMatch ? emojiMatch[1] : '📄',
           content: []
         };
         continue;
@@ -162,11 +162,11 @@ const ReportDisplay: React.FC<ReportDisplayProps> = ({ report, error }) => {
 
     // Push last section
     if (currentSection) {
-      const config = getSectionConfig(currentSection.title);
+      const cleanTitle = currentSection.title.replace(emojiRegex, '').trim();
+      const config = getSectionConfig(cleanTitle);
       sections.push({
-        id: currentSection.title.toLowerCase().replace(/\s+/g, '-'),
-        title: currentSection.title.replace(/[📋🎯🛒👥📊📢🚀⚠️🌐]/g, '').trim(),
-        emoji: currentSection.emoji,
+        id: cleanTitle.toLowerCase().replace(/\s+/g, '-'),
+        title: cleanTitle,
         content: currentSection.content.join('\n').trim(),
         ...config
       });
