@@ -1,4 +1,4 @@
-export type ReportSection = 'dados' | 'produtos' | 'clientes' | 'canais' | 'reclameaqui' | 'estrategia';
+export type ReportSection = 'dados' | 'produtos' | 'clientes' | 'canais' | 'reclameaqui' | 'estrategia' | 'clientesjetsales';
 
 export interface SearchFormData {
   companyName: string;

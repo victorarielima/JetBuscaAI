@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { SearchFormData, QueryStatus, ReportSection } from '../types';
-import { Search, Building2, MapPin, Briefcase, FileText, Loader2, ShoppingCart, Users, MessageSquare, Star, Rocket, Check } from './Icons';
+import { Search, Building2, MapPin, Briefcase, FileText, Loader2, ShoppingCart, Users, MessageSquare, Star, Rocket, Check, Award } from './Icons';
 
 interface SearchFormProps {
   onSubmit: (data: SearchFormData) => void;
@@ -14,6 +14,7 @@ const REPORT_SECTIONS: { id: ReportSection; label: string; Icon: React.Component
   { id: 'canais', label: 'Canais', Icon: MessageSquare },
   { id: 'reclameaqui', label: 'Reclame Aqui', Icon: Star },
   { id: 'estrategia', label: 'Estratégia', Icon: Rocket },
+  { id: 'clientesjetsales', label: 'Clientes JetSales', Icon: Award },
 ];
 
 const SearchForm: React.FC<SearchFormProps> = ({ onSubmit, status }) => {
@@ -23,7 +24,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSubmit, status }) => {
     location: '',
     industry: '',
     additionalInfo: '',
-    selectedSections: ['dados', 'produtos', 'clientes', 'canais', 'reclameaqui', 'estrategia']
+    selectedSections: ['dados', 'produtos', 'clientes', 'canais', 'reclameaqui', 'estrategia', 'clientesjetsales']
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -187,9 +188,10 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSubmit, status }) => {
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {REPORT_SECTIONS.map((section) => {
+            {REPORT_SECTIONS.map((section, index) => {
               const isSelected = formData.selectedSections.includes(section.id);
               const IconComponent = section.Icon;
+              const isLastOdd = REPORT_SECTIONS.length % 2 === 1 && index === REPORT_SECTIONS.length - 1;
               return (
                 <button
                   key={section.id}
@@ -206,6 +208,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSubmit, status }) => {
                   className={`
                     flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium
                     border-2 transition-all duration-200 disabled:opacity-50
+                    ${isLastOdd ? 'sm:col-span-2' : ''}
                     ${isSelected 
                       ? 'border-brand-500 bg-brand-50 text-brand-700' 
                       : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'

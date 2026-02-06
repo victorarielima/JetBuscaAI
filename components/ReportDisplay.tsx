@@ -17,7 +17,8 @@ import {
   Download,
   FileText,
   TrendingUp,
-  Zap
+  Zap,
+  Award
 } from './Icons';
 
 interface ReportDisplayProps {
@@ -94,6 +95,16 @@ const sectionConfig: Record<string, { icon: React.ReactNode; gradient: string; b
     icon: <Globe className="w-5 h-5" />, 
     gradient: 'from-indigo-500 to-purple-600',
     bgColor: 'bg-indigo-50 border-indigo-200'
+  },
+  'clientes jetsales': { 
+    icon: <Award className="w-5 h-5" />, 
+    gradient: 'from-brand-500 to-brand-600',
+    bgColor: 'bg-brand-50 border-brand-200'
+  },
+  'mesmo segmento': { 
+    icon: <Award className="w-5 h-5" />, 
+    gradient: 'from-brand-500 to-brand-600',
+    bgColor: 'bg-brand-50 border-brand-200'
   },
   'default': { 
     icon: <FileText className="w-5 h-5" />, 

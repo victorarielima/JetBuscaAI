@@ -1,7 +1,71 @@
 import { SearchFormData, ReportSection } from '../types';
 import { SYSTEM_INSTRUCTION } from '../constants';
+import { searchSimilarClients, formatSimilarClientsForPrompt } from './supabaseService';
 
 const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+
+// Função auxiliar para identificar o setor da empresa
+async function identifyCompanySector(companyName: string, additionalInfo?: string): Promise<string> {
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-4.1-mini',
+        messages: [
+          {
+            role: 'system',
+            content: `Você é um especialista em classificação de empresas brasileiras por nicho de mercado.
+
+Sua tarefa é identificar o TIPO DE SERVIÇO ou PRODUTO PRINCIPAL que a empresa oferece.
+
+REGRAS CRÍTICAS:
+1. PESQUISE mentalmente o que essa empresa brasileira faz com base no nome
+2. Se houver informações adicionais fornecidas, USE-AS como fonte primária
+3. NÃO assuma baseado apenas em palavras do nome (ex: "Eng" não significa necessariamente construção civil)
+4. Foque no SERVIÇO PRESTADO, não no setor industrial genérico
+5. Considere que muitas empresas com "Eng" no nome são de consultoria, treinamentos ou gestão
+
+CATEGORIAS PRIORITÁRIAS para buscar clientes similares:
+- Treinamentos e Capacitação Corporativa
+- Consultoria em Gestão e Qualidade
+- Consultoria em Processos e Produção
+- Software e Tecnologia B2B
+- E-commerce e Varejo Online
+- Saúde e Bem-estar
+- Educação e Cursos
+- Alimentação e Food Service
+- Serviços Financeiros
+- Logística e Transporte
+- Marketing e Publicidade
+- Indústria e Manufatura
+
+Responda com 2-5 palavras descrevendo o tipo de serviço/produto principal.`
+          },
+          {
+            role: 'user',
+            content: `Empresa: "${companyName}"${additionalInfo ? `\n\nINFORMAÇÕES FORNECIDAS (use como referência principal): ${additionalInfo}` : ''}\n\nQual o tipo de serviço ou produto principal desta empresa? Responda apenas com a classificação.`
+          }
+        ],
+        temperature: 0.2,
+        max_tokens: 50
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('Erro ao identificar setor');
+    }
+
+    const data = await response.json();
+    return data.choices?.[0]?.message?.content?.trim() || 'Setor não identificado';
+  } catch (error) {
+    console.error('Erro ao identificar setor:', error);
+    return 'Setor não identificado';
+  }
+}
 
 // Mapeamento de seções para instruções de prompt
 const SECTION_PROMPTS: Record<ReportSection, { title: string; instruction: string }> = {
@@ -63,19 +127,43 @@ const SECTION_PROMPTS: Record<ReportSection, { title: string; instruction: strin
   estrategia: {
     title: 'Estratégia de Venda',
     instruction: `## Estratégia de Venda JetSales
+
 ### Diagnóstico
-[Analise como a empresa atende hoje e onde pode melhorar]
+[Analise como a empresa atende hoje e onde pode melhorar com automação]
+
+### Insights Sazonais e de Mercado
+[IMPORTANTE: Identifique períodos de PICO de demanda específicos para o setor/produto da empresa]
+- **Datas Comemorativas:** [Ex: Dia das Mães, Natal, Black Friday, Dia dos Namorados]
+- **Sazonalidade do Setor:** [Ex: Mês das Noivas (Maio) para moda/calçados, Volta às Aulas para papelarias, Verão para turismo]
+- **Eventos Especiais:** [Ex: Copa do Mundo, shows, feriados prolongados]
+- **Impacto Estimado:** [Como esses períodos aumentam o volume de atendimento da empresa]
+- **Como a JetSales ajuda:** [Ex: "No mês das noivas, sua equipe conseguiria atender 3x mais clientes com chatbots automatizados"]
 
 ### Oportunidades Identificadas
-[Liste 2-3 dores que podem ser resolvidas com automação de atendimento]
+[Liste 2-3 dores específicas que podem ser resolvidas com automação]
+1. [Dor + como a JetSales resolve]
+2. [Dor + como a JetSales resolve]
 
 ### Pitch Personalizado
-- **Argumento Chave:** [Frase de impacto para o setor]
-- **Solução Sugerida:** [Chatbot, Multi-atendentes, CRM, etc]
+- **Argumento Chave:** [Frase de impacto focada no setor. Ex: "Imagina atender todas as noivas de maio sem perder nenhuma venda por demora no WhatsApp?"]
+- **Solução Sugerida:** [Chatbot, Multi-atendentes, Agentes de IA, CRM, etc]
+- **ROI Esperado:** [Estimativa de ganho: mais vendas, menos tempo perdido, etc]
 
-### Perguntas de Sondagem
-- [Pergunta sobre volume de atendimento]
-- [Pergunta sobre resposta em horários de pico]`
+### Perguntas de Sondagem (SPIN)
+- [Pergunta sobre volume de atendimento em datas sazonais]
+- [Pergunta sobre perda de vendas por demora no atendimento]
+- [Pergunta sobre organização dos leads e follow-up]`
+  },
+  clientesjetsales: {
+    title: 'Clientes JetSales no Segmento',
+    instruction: `## Clientes JetSales no Mesmo Segmento
+[Esta seção será preenchida automaticamente com base nos clientes existentes da JetSales que atuam no mesmo segmento ou similar]
+
+### Cases de Sucesso Relevantes
+[Se houver clientes JetSales no mesmo segmento, mencione como eles se beneficiaram da solução]
+
+### Argumento de Prova Social
+[Use os clientes existentes como prova de que a JetSales entende o segmento]`
   }
 };
 
@@ -85,6 +173,45 @@ export const generateCompanyReport = async (formData: SearchFormData): Promise<s
   }
 
   const { selectedSections } = formData;
+
+  // Variável para armazenar o setor identificado
+  let identifiedSector = '';
+  let similarClientsInfo = '';
+
+  // Se a seção de clientes JetSales estiver selecionada, primeiro identificar o setor
+  if (selectedSections.includes('clientesjetsales')) {
+    try {
+      // Montar contexto adicional com todas as informações disponíveis
+      const contextParts: string[] = [];
+      if (formData.industry) contextParts.push(`Setor informado: ${formData.industry}`);
+      if (formData.additionalInfo) contextParts.push(`Observações: ${formData.additionalInfo}`);
+      if (formData.website) contextParts.push(`Website: ${formData.website}`);
+      const additionalContext = contextParts.length > 0 ? contextParts.join('. ') : undefined;
+
+      // Passo 1: Identificar o setor da empresa
+      console.log('Identificando setor da empresa...');
+      identifiedSector = await identifyCompanySector(
+        formData.companyName, 
+        additionalContext
+      );
+      console.log('Setor identificado:', identifiedSector);
+
+      // Passo 2: Buscar clientes similares usando o SETOR identificado (não os dados do formulário)
+      console.log('Buscando clientes JetSales no setor:', identifiedSector);
+      const similarClients = await searchSimilarClients(identifiedSector, 5, 0.4);
+      similarClientsInfo = formatSimilarClientsForPrompt(similarClients);
+      
+      // Adicionar o setor identificado na info
+      if (similarClients.length > 0) {
+        similarClientsInfo = `SETOR IDENTIFICADO: ${identifiedSector}\n\n${similarClientsInfo}`;
+      } else {
+        similarClientsInfo = `SETOR IDENTIFICADO: ${identifiedSector}\n\nNenhum cliente JetSales encontrado neste segmento específico.`;
+      }
+    } catch (error) {
+      console.warn('Erro ao buscar clientes similares:', error);
+      similarClientsInfo = 'Não foi possível consultar a base de clientes.';
+    }
+  }
 
   // Gerar slug para Reclame Aqui
   const reclameAquiSlug = formData.companyName
@@ -104,7 +231,14 @@ export const generateCompanyReport = async (formData: SearchFormData): Promise<s
   
   if (formData.cnpj) userPrompt += `- **CNPJ:** ${formData.cnpj}\n`;
   if (formData.location) userPrompt += `- **Localização:** ${formData.location}\n`;
-  if (formData.industry) userPrompt += `- **Setor:** ${formData.industry}\n`;
+  
+  // Usar o setor identificado se disponível, senão usar o do formulário
+  if (identifiedSector && identifiedSector !== 'Setor não identificado') {
+    userPrompt += `- **Setor (identificado pela IA):** ${identifiedSector}\n`;
+  } else if (formData.industry) {
+    userPrompt += `- **Setor:** ${formData.industry}\n`;
+  }
+  
   if (formData.additionalInfo) userPrompt += `- **Contexto Adicional:** ${formData.additionalInfo}\n`;
 
   // Adicionar instruções específicas para Reclame Aqui se selecionado
@@ -124,6 +258,13 @@ export const generateCompanyReport = async (formData: SearchFormData): Promise<s
       userPrompt += SECTION_PROMPTS[section].instruction + '\n\n---\n\n';
     }
   });
+
+  // Adicionar informação de clientes similares se disponível
+  if (similarClientsInfo && selectedSections.includes('clientesjetsales')) {
+    userPrompt += `\n📊 **BASE DE CLIENTES JETSALES (USE ESTAS INFORMAÇÕES):**\n`;
+    userPrompt += similarClientsInfo;
+    userPrompt += `\nUse esses clientes como PROVA SOCIAL no pitch. Mencione que a JetSales já atende empresas similares.\n`;
+  }
 
   userPrompt += `\n⚠️ **REGRAS:**\n`;
   userPrompt += `1. Inclua APENAS as seções listadas acima, não adicione outras.\n`;
