@@ -7,8 +7,6 @@ import {
   Target, 
   ShoppingCart, 
   Users, 
-  MessageSquare, 
-  Star, 
   Rocket, 
   AlertTriangle,
   Globe,
@@ -36,11 +34,6 @@ interface Section {
 }
 
 const sectionConfig: Record<string, { icon: React.ReactNode; gradient: string; bgColor: string }> = {
-  'dados cadastrais': { 
-    icon: <Building2 className="w-5 h-5" />, 
-    gradient: 'from-blue-500 to-blue-600',
-    bgColor: 'bg-blue-50 border-blue-200'
-  },
   'o que a empresa faz': { 
     icon: <Target className="w-5 h-5" />, 
     gradient: 'from-purple-500 to-purple-600',
@@ -55,21 +48,6 @@ const sectionConfig: Record<string, { icon: React.ReactNode; gradient: string; b
     icon: <Users className="w-5 h-5" />, 
     gradient: 'from-orange-500 to-orange-600',
     bgColor: 'bg-orange-50 border-orange-200'
-  },
-  'canais de atendimento': { 
-    icon: <MessageSquare className="w-5 h-5" />, 
-    gradient: 'from-cyan-500 to-cyan-600',
-    bgColor: 'bg-cyan-50 border-cyan-200'
-  },
-  'reputação': { 
-    icon: <Star className="w-5 h-5" />, 
-    gradient: 'from-yellow-500 to-amber-500',
-    bgColor: 'bg-yellow-50 border-yellow-200'
-  },
-  'reclame aqui': { 
-    icon: <Star className="w-5 h-5" />, 
-    gradient: 'from-yellow-500 to-amber-500',
-    bgColor: 'bg-yellow-50 border-yellow-200'
   },
   'estratégia': { 
     icon: <Rocket className="w-5 h-5" />, 

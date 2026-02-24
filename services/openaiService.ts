@@ -69,18 +69,6 @@ Responda com 2-5 palavras descrevendo o tipo de serviço/produto principal.`
 
 // Mapeamento de seções para instruções de prompt
 const SECTION_PROMPTS: Record<ReportSection, { title: string; instruction: string }> = {
-  dados: {
-    title: 'Dados Cadastrais',
-    instruction: `## Dados Cadastrais
-| Campo | Informação |
-|-------|------------|
-| **Razão Social** | [razão social] |
-| **CNPJ** | [CNPJ se encontrar] |
-| **Sede** | [cidade/estado] |
-| **Setor** | [setor de atuação] |
-| **Site** | [website oficial] |
-| **Fundação** | [ano de fundação] |`
-  },
   produtos: {
     title: 'Produtos e Serviços',
     instruction: `## Principais Produtos e Serviços
@@ -96,33 +84,6 @@ const SECTION_PROMPTS: Record<ReportSection, { title: string; instruction: strin
 - **Segmento:** [B2B, B2C, ou ambos]
 - **Porte dos clientes:** [PME, Grandes empresas, Varejo, etc]
 - **Volume de Atendimento:** [Estime: Alto volume? Venda complexa?]`
-  },
-  canais: {
-    title: 'Canais de Atendimento',
-    instruction: `## Canais de Atendimento Atuais
-[Pesquise como eles atendem: WhatsApp, Instagram, Chat, Telefone, Email, etc]
-- **WhatsApp:** [Sim/Não - tem botão no site?]
-- **Instagram:** [@ e se é ativo]
-- **Facebook:** [link]
-- **Telefone:** [número]
-- **Chat no site:** [Sim/Não]`
-  },
-  reclameaqui: {
-    title: 'Reputação e Reclame Aqui',
-    instruction: `## Reputação e Reclame Aqui
-[PESQUISE OBRIGATORIAMENTE no Reclame Aqui]
-| Indicador | Valor |
-|-----------|-------|
-| **Nome no Portal** | [nome cadastrado] |
-| **Nota Geral** | [X.X/10] |
-| **Reputação** | [Ótimo/Bom/Regular/Ruim/Não Recomendada] |
-| **Total de Reclamações** | [número] |
-| **Taxa de Resposta** | [X%] |
-| **Taxa de Solução** | [X%] |
-| **Voltariam a fazer negócio** | [X%] |
-
-**Principais Queixas:** [Liste 2-3 problemas mais comuns]
-**Link do Perfil:** [URL do Reclame Aqui]`
   },
   estrategia: {
     title: 'Estratégia de Venda',
@@ -157,13 +118,21 @@ const SECTION_PROMPTS: Record<ReportSection, { title: string; instruction: strin
   clientesjetsales: {
     title: 'Clientes JetSales no Segmento',
     instruction: `## Clientes JetSales no Mesmo Segmento
+[Informe explicitamente o segmento da empresa-alvo e use as informações de clientes semelhantes apenas como prova social]
+
+- **Segmento da empresa-alvo:** [Use o setor identificado automaticamente ou escreva "Não identificado"]
+
 [Esta seção será preenchida automaticamente com base nos clientes existentes da JetSales que atuam no mesmo segmento ou similar]
 
 ### Cases de Sucesso Relevantes
-[Se houver clientes JetSales no mesmo segmento, mencione como eles se beneficiaram da solução]
+[Se houver clientes JetSales no mesmo segmento, liste cada um NO FORMATO:
+- **Cliente:** [Nome completo]
+  - **Segmento:** [Segmento/atividade principal do cliente]
+  - **Como a JetSales ajudou:** [Resumo objetivo de como otimizamos o atendimento]
+]
 
 ### Argumento de Prova Social
-[Use os clientes existentes como prova de que a JetSales entende o segmento]`
+[Reforce que a JetSales domina o segmento citando NOMES dos clientes acima e conectando os ganhos obtidos por eles ao contexto da empresa-alvo]`
   }
 };
 
@@ -213,16 +182,6 @@ export const generateCompanyReport = async (formData: SearchFormData): Promise<s
     }
   }
 
-  // Gerar slug para Reclame Aqui
-  const reclameAquiSlug = formData.companyName
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .trim();
-
   // Construir prompt baseado nas seções selecionadas
   let userPrompt = `Aja como um analista de vendas B2B. Pesquise e crie um relatório em PORTUGUÊS sobre a empresa abaixo.\n\n`;
   
@@ -240,14 +199,6 @@ export const generateCompanyReport = async (formData: SearchFormData): Promise<s
   }
   
   if (formData.additionalInfo) userPrompt += `- **Contexto Adicional:** ${formData.additionalInfo}\n`;
-
-  // Adicionar instruções específicas para Reclame Aqui se selecionado
-  if (selectedSections.includes('reclameaqui')) {
-    userPrompt += `\n🔍 **INSTRUÇÕES PARA RECLAME AQUI:**\n`;
-    userPrompt += `- **URL DIRETA:** https://www.reclameaqui.com.br/empresa/${reclameAquiSlug}/\n`;
-    userPrompt += `- **VARIAÇÕES:** "${reclameAquiSlug}", "${formData.companyName.toLowerCase().replace(/\s+/g, '-')}"\n`;
-    userPrompt += `- A maioria das empresas brasileiras TEM perfil - não assuma que não existe.\n`;
-  }
 
   userPrompt += `\n📋 **ESTRUTURA DO RELATÓRIO (INCLUA APENAS ESTAS SEÇÕES):**\n\n`;
   userPrompt += `# 🏢 ${formData.companyName}\n\n`;

@@ -24,17 +24,6 @@ Você representa a **JetSales Brasil** (Jetsales Sistemas e Tecnologia LTDA).
 
 # [NOME DA EMPRESA ALVO]
 
-## Dados Cadastrais
-| Campo | Informação |
-|-------|------------|
-| **Razão Social** | [razão social - se encontrar] |
-| **CNPJ** | [CNPJ - se encontrar] |
-| **Sede** | [cidade/estado] |
-| **Setor** | [setor de atuação] |
-| **Site** | [website oficial] |
-
----
-
 ## O Que a Empresa Faz
 [Descrição clara e direta: O que eles vendem? Para quem? Qual o modelo de negócio?]
 
@@ -50,39 +39,6 @@ Você representa a **JetSales Brasil** (Jetsales Sistemas e Tecnologia LTDA).
 ## Perfil do Cliente (Target)
 - **Quem compra:** [Perfil das empresas ou consumidores]
 - **Volume de Atendimento:** [Estime: Alto volume? Venda complexa? Suporte intenso?]
-
----
-
-## Canais de Atendimento Atuais
-[Pesquise como eles atendem hoje. Têm botão de WhatsApp no site? Usam formulário? Instagram é ativo?]
-
----
-
-## Reputação e Reclame Aqui
-
-### INSTRUÇÕES CRÍTICAS DE PESQUISA NO RECLAME AQUI:
-1. **SEMPRE acesse diretamente** a URL: https://www.reclameaqui.com.br/empresa/[nome-da-empresa]/lista-reclamacoes/
-2. **Formato da URL:** O nome deve estar em minúsculas, com hífens no lugar de espaços (ex: "Couro e Arte" → "couro-e-arte")
-3. **TENTE MÚLTIPLAS VARIAÇÕES da URL:**
-   - Nome exato com hífens: /empresa/nome-da-empresa/
-   - Sem acentos: /empresa/nome-sem-acentos/
-   - Nome simplificado: /empresa/nome/
-4. **NÃO ASSUMA que não existe** - a maioria das empresas possui perfil no Reclame Aqui
-5. **Se encontrar o perfil**, extraia TODOS os dados disponíveis na página
-
-- **Status:** ["Possui Perfil" ou "Não Possui Perfil" - SOMENTE após verificar múltiplas variações de URL]
-- **Link do Perfil:** [URL completa do perfil no Reclame Aqui - OBRIGATÓRIO se existir]
-- **Nome no Reclame Aqui:** [Nome exato como aparece no portal]
-- **Nota Geral:** [Nota numérica ex: 7.5/10, ou classificação: "Ótimo", "Bom", "Regular", "Ruim", "Não Recomendada"]
-- **Reputação:** [Ex: "Ótimo", "Bom", "Regular", "Ruim", "Não Recomendada"]
-- **Índice de Solução:** [Percentual de problemas resolvidos]
-- **Taxa de Resposta:** [Percentual de reclamações respondidas]
-- **Total de Reclamações:** [Número total de reclamações registradas]
-- **Voltariam a fazer negócio:** [Percentual de consumidores que voltariam]
-- **Principais Queixas:** [Liste os 2-3 problemas mais comuns encontrados nas reclamações recentes]
-- **Insight para Vendas:** [Conecte as queixas (ex: demora no atendimento, falta de resposta) com a solução JetSales.]
-
----
 
 ## Estratégia de Venda JetSales (Oportunidades)
 [Aqui você deve conectar as dores da empresa com as soluções da JetSales]
@@ -118,7 +74,6 @@ Você representa a **JetSales Brasil** (Jetsales Sistemas e Tecnologia LTDA).
 ## Referências
 [Liste TODAS as fontes de onde as informações foram extraídas. Inclua URLs quando disponíveis.]
 - **Site Oficial:** [URL do site da empresa]
-- **Reclame Aqui:** [URL da página no Reclame Aqui, se existir]
 - **Redes Sociais:** [URLs do Instagram, Facebook, LinkedIn encontrados]
 - **Outras Fontes:** [Quaisquer outras fontes consultadas como notícias, portais de negócios, etc.]
 
